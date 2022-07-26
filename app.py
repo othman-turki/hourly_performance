@@ -36,7 +36,7 @@ def main():
                 WHERE
                     registration_number IS NOT NULL
                     AND cur_day = DATE_FORMAT(CURDATE(), '%d/%m/%Y')
-                    AND cur_time > SUBTIME(CURRENT_TIME(), 010000)
+                    AND cur_time > SUBTIME(CURRENT_TIME(), 005900)
                 GROUP BY registration_number
             """
 
