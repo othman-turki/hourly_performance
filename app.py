@@ -7,9 +7,21 @@ import time
 from datetime import datetime
 from mysql.connector import connect, Error
 
-TRIGGERS = ("08:30:00", "09:30:00", "10:30:00", "11:30:00", "12:30:00",
-            "13:30:00", "14:30:00", "15:30:00", "16:30:00", "17:30:00")
-# TRIGGERS = ("19:00:00", "20:00:00")
+
+triggers = {
+    "08:30:00": {"start": "07:30:00", "end": "08:29:59", "work_time": "60"},
+    "09:30:00": {"start": "08:30:00", "end": "09:29:59", "work_time": "60"},
+    "10:30:00": {"start": "09:30:00", "end": "10:29:59", "work_time": "60"},
+    "11:30:00": {"start": "10:30:00", "end": "11:29:59", "work_time": "60"},
+    "11:50:00": {"start": "11:30:00", "end": "11:50:00", "work_time": "20"},
+    "13:30:00": {"start": "12:30:00", "end": "13:29:59", "work_time": "60"},
+    "14:30:00": {"start": "13:30:00", "end": "14:29:59", "work_time": "60"},
+    "15:30:00": {"start": "14:30:00", "end": "15:29:59", "work_time": "60"},
+    "16:30:00": {"start": "15:30:00", "end": "16:29:59", "work_time": "60"},
+    "17:10:00": {"start": "16:30:00", "end": "17:10:00", "work_time": "40"},
+    # TEST
+    # "22:17:00": {"start": "21:30:00", "end": "22:29:59", "work_time": "20"},
+}
 
 
 def main():
@@ -18,8 +30,8 @@ def main():
     try:
         with connect(
             host="localhost",
-            user="root",
-            password="",
+            user="root",  # ISA
+            password="",  # SmarTex2021
             database="db_isa",
         ) as connection:
             print("Connection to DB succeeded!")
@@ -29,14 +41,17 @@ def main():
                 cur_day = now.strftime("%d/%m/%Y")
                 cur_time = now.strftime("%H:%M:%S")
 
-                if cur_time in TRIGGERS:
+                if cur_time in triggers:
                     select_query = """
                         SELECT
-                            registration_number, Firstname, Lastname, ROUND(SUM((quantity * tps_ope_uni)) / 60, 2) AS performance
+                            registration_number,
+                            Firstname,
+                            Lastname,
+                            ROUND(SUM((quantity * tps_ope_uni)) / """ + triggers[cur_time]["work_time"] + """, 2) AS performance
                         FROM
                             `pack_operation`
                         WHERE
-                            cur_day = '""" + cur_day + """' AND cur_time > SUBTIME('""" + cur_time + """', 005900)
+                            cur_day = '""" + cur_day + """' AND cur_time BETWEEN '""" + triggers[cur_time]["start"] + """' AND '""" + triggers[cur_time]["end"] + """'
                         GROUP BY
                             registration_number;
                     """
