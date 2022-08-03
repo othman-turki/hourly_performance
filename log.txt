@@ -1,2 +1,0 @@
-2022-07-29 11:00:01,654 Fetch Success
-2022-07-29 11:00:01,654 Inserted Succfully
